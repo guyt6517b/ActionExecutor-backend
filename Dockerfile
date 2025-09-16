@@ -1,27 +1,26 @@
-# Use a slim Python image
-FROM python:3.13-slim
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
 
-# Install dependencies for Chrome + Selenium
-RUN apt-get update && \
-    apt-get install -y wget unzip chromium chromium-driver && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set environment variable for Chrome
-ENV CHROME_BIN=/usr/bin/chromium
-ENV PATH="$PATH:/usr/bin/chromium"
-
-# Set working directory
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy and install Python dependencies
-COPY requirements.txt .
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Install system dependencies for Chromium and other utilities
+RUN apt-get update && \
+    apt-get install -y chromium wget curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy your app code
-COPY . .
+# Set environment variables for Chromium
+ENV CHROMIUM_BIN=/usr/bin/chromium
+ENV CHROMIUM_PATH=/usr/lib/chromium
 
-# Expose port for Gunicorn
+# Expose the port the app runs on
 EXPOSE 8000
 
-# Start the app using Gunicorn
-CMD ["gunicorn", "wsgi:app", "-b", "0.0.0.0:8000"]
+# Command to run the application
+CMD ["gunicorn", "wsgi:app", "--bind", "0.0.0.0:8000"]
