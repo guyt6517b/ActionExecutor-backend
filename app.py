@@ -7,6 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import base64
 import time
+import os
+os.system("apt-get update && apt-get install -y chromium")
 
 app = Flask(__name__)
 
